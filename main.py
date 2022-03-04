@@ -27,21 +27,36 @@ if file_type == 1:
 else:
     file_type = ".mp3"
 
-# Specific video downloader
-if mode == 1:
-    video = YouTube(input("\n\nVideo link: "))
-    print(f"#1 [+] Downloading {video.title}")
+# Downloader
+def download(video, video_number):
     failed = ""
+    print(f"#{video_number} [+] Downloading {video.title}")
     try:
         video_output = video.streams.filter(only_audio=True).first()
         downloaded_file = video_output.download(directory)
         base, ext = os.path.splitext(downloaded_file)
         new_file = base + file_type
         os.rename(downloaded_file, new_file)
+    except FileExistsError:
+        print(f"#{video_number} [-] Ignoring {video.title} due to file already exist")
+        try:
+            os.remove(f"{directory}/{video.title}.mp4")
+        except FileNotFoundError:
+            print(f"#{video_number} [-] Problem in deleting file. Please delete {video.title}.mp4 manually")
     except Exception as e:
-        print(f"#1 [-] Something went wrong with {video.title} - {e}")
-        failed += f"#1 - {video.title}\n"
-        os.remove(f"{directory}/{video.title}.mp4")
+        print(f"#{video_number} [-] Something went wrong with {video.title} - {e}")
+        failed += f"#{video_number} - {video.title}\n"
+        try:
+            os.remove(f"{directory}/{video.title}.mp4")
+        except FileNotFoundError:
+            print(f"#{video_number} [-] Problem in deleting file. Please delete {video.title}.mp4 manually")
+    return failed
+
+# Specific video downloader
+if mode == 1:
+    video = YouTube(input("\n\nVideo link: "))
+    failed = ""
+    failed += download(video=video, video_number=1)
     print(f"\n\n[+] DONE DOWNLOADING\n\n[-] Failed downloads\n\n{failed}")
 
 # Playlist downloader
@@ -51,15 +66,5 @@ elif mode == 2:
     failed = ""
     for video in playlist.videos:
         video_number += 1
-        print(f"#{video_number} [+] Downloading {video.title}")
-        try:
-            video_output = video.streams.filter(only_audio=True).first()
-            downloaded_file = video_output.download(directory)
-            base, ext = os.path.splitext(downloaded_file)
-            new_file = base + file_type
-            os.rename(downloaded_file, new_file)
-        except Exception as e:
-            print(f"#{video_number} [-] Something went wrong with {video.title} - {e}")
-            failed += f"#{video_number} - {video.title}\n"
-            os.remove(f"{directory}/{video.title}.mp4")
+        failed += download(video=video, video_number=video_number)
     print(f"\n\n[+] DONE DOWNLOADING\n\n[-] Failed downloads\n\n{failed}")
