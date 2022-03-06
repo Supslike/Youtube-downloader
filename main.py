@@ -8,18 +8,16 @@ try:
     file_type = int(input("\n\nWhat file type do you want it to be saved?\n\n1. mp4\n2. mp3\n\nPlease provide the number: "))
     directory = input("\n\nPlease input the directory: \n\nexample: ./Musics\n\nDirectory: ")
 except:
-    input("\n\nPlease provide a integer as example. (press enter to exit)")
+    temp = input("\n\nPlease provide a integer as example. (press enter to exit)")
 
 # Checking if all information are provided
 try:
     if mode == "":
-        input("\n\nPlease provide a integer as example. (press enter to exit)")
+        temp = input("\n\nPlease provide a integer as example. (press enter to exit)")
     if file_type == "":
-        input("\n\nPlease provide a integer as example. (press enter to exit)")
-    if directory == "":
-        input("\n\nPlease provide a integer as example. (press enter to exit)")
+        temp = input("\n\nPlease provide a integer as example. (press enter to exit)")
 except:
-    input("\n\nPlease provide a integer as example. (press enter to exit)")
+    temp = input("\n\nPlease provide a integer as example. (press enter to exit)")
 
 # Specifying the file type
 if file_type == 1:
@@ -43,12 +41,16 @@ def download(video, video_number):
             os.remove(f"{directory}/{video.title}.mp4")
         except FileNotFoundError:
             print(f"#{video_number} [-] Problem in deleting file. Please delete {video.title}.mp4 manually")
+        except OSError:
+            print(f"#{video_number} [-] Problem in deleting file. Please delete {video.title}.mp4 manually")
     except Exception as e:
         print(f"#{video_number} [-] Something went wrong with {video.title} - {e}")
         failed += f"#{video_number} - {video.title}\n"
         try:
             os.remove(f"{directory}/{video.title}.mp4")
         except FileNotFoundError:
+            print(f"#{video_number} [-] Problem in deleting file. Please delete {video.title}.mp4 manually")
+        except OSError:
             print(f"#{video_number} [-] Problem in deleting file. Please delete {video.title}.mp4 manually")
     return failed
 
